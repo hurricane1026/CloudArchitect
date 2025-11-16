@@ -1,0 +1,35 @@
+{
+  "title": "Cloud Architect's Guide",
+  "description": "Building High-Availability, Cost-Effective Internet Services and SaaS with Modern Cloud Platforms",
+  "author": "CloudArchitect",
+  "language": "en",
+  "gitbook": "3.2.3",
+  "structure": {
+    "readme": "README.md",
+    "summary": "SUMMARY.md"
+  },
+  "plugins": [
+    "expandable-chapters",
+    "github",
+    "search",
+    "prism",
+    "-highlight",
+    "anchors",
+    "copy-code-button",
+    "splitter",
+    "page-toc-button"
+  ],
+  "pluginsConfig": {
+    "github": {
+      "url": "https://github.com/hurricane1026/CloudArchitect"
+    },
+    "sharing": {
+      "facebook": false,
+      "twitter": false,
+      "all": false
+    }
+  },
+  "variables": {
+    "year": "2025"
+  }
+}
