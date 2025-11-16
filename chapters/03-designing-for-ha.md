@@ -39,6 +39,163 @@ High availability (HA) means your system remains operational and accessible to u
 
 **The paradox**: Cheaper, less reliable components + better architecture = higher reliability and lower cost.
 
+### Cloud-Native HA: More Options, Different Priorities
+
+The cloud fundamentally changes HA strategy in two critical ways:
+
+#### 1. HA Through PaaS: Let the Cloud Provider Handle Redundancy
+
+**Traditional HA**: You build and manage redundancy yourself
+- Configure database replication manually
+- Set up load balancer clusters
+- Manage failover scripts
+- Monitor and replace failed components
+- Complex, expensive, error-prone
+
+**Cloud HA**: Use PaaS services with built-in redundancy
+- **RDS Multi-AZ**: Automatic failover across availability zones (you just enable it)
+- **DynamoDB**: Automatic replication across 3 AZs (no configuration needed)
+- **S3**: 99.999999999% (11 nines) durability automatically
+- **ELB**: Distributed across multiple AZs by default
+- **Lambda**: AWS handles all infrastructure HA
+
+**The insight**: Cloud infrastructure is **natively multi-replica**. By using managed PaaS services, you avoid the complexity and cost of building HA yourself.
+
+**Example comparison**:
+
+```
+Traditional approach (self-managed HA):
+┌─────────────────────────────────────────────────┐
+│ Your responsibilities:                          │
+│ - Configure PostgreSQL streaming replication   │
+│ - Set up keepalived for automatic failover     │
+│ - Monitor replication lag                      │
+│ - Handle split-brain scenarios                 │
+│ - Test failover procedures regularly           │
+│ - Manage backup replication                    │
+│                                                 │
+│ Cost: 2-3 engineers × weeks of work            │
+│ Ongoing: Constant monitoring and maintenance   │
+└─────────────────────────────────────────────────┘
+
+Cloud PaaS approach (RDS Multi-AZ):
+┌─────────────────────────────────────────────────┐
+│ Your responsibilities:                          │
+│ - Set MultiAZ: true in CloudFormation          │
+│                                                 │
+│ AWS handles:                                    │
+│ - Automatic synchronous replication            │
+│ - Automatic failover (1-2 minutes)             │
+│ - Automatic backup to standby                  │
+│ - Continuous monitoring                        │
+│ - DNS update on failover                       │
+│                                                 │
+│ Cost: One line of configuration                │
+│ Ongoing: Zero - AWS manages everything         │
+└─────────────────────────────────────────────────┘
+```
+
+**Cost savings**: Not just money - saved engineering time, reduced operational complexity, fewer human errors.
+
+#### 2. Data Durability > Service Availability
+
+This is the most important insight for cloud-native HA:
+
+**Critical principle**: Prioritize data persistence over service uptime, because **services can be recreated from code in minutes, but lost data is gone forever**.
+
+**Why this changes everything**:
+
+In the cloud, your entire infrastructure is defined as code. If a region fails:
+
+```python
+# Your entire application infrastructure
+$ terraform apply -var="region=us-west-2"
+
+# 5-10 minutes later: identical environment running
+```
+
+**But you CANNOT recreate lost data from code.**
+
+**The new HA hierarchy**:
+
+```
+Priority 1: DATA DURABILITY (most critical)
+├─ Database backups across regions
+├─ S3 cross-region replication
+├─ Point-in-time recovery enabled
+└─ Can tolerate: ZERO data loss
+
+Priority 2: DATA AVAILABILITY (very important)
+├─ Database replicas for read scaling
+├─ Cache layers (Redis/ElastiCache)
+├─ Can tolerate: Seconds of replication lag
+
+Priority 3: SERVICE AVAILABILITY (important, but recoverable)
+├─ Multi-AZ deployments
+├─ Auto-scaling groups
+├─ Load balancers
+└─ Can tolerate: Minutes of downtime (infrastructure can be recreated)
+```
+
+**Reality check: Do you really need sub-second RTO?**
+
+Most businesses claim they need "99.999% availability" but when you analyze actual requirements:
+
+| Business Type | Claimed Need | Actual Tolerance | Reality |
+|--------------|--------------|------------------|---------|
+| E-commerce | "Zero downtime" | 5-10 minutes | Black Friday is 1 day/year, can tolerate brief maintenance windows other times |
+| SaaS Application | "Always available" | 2-5 minutes | Users will retry, support team can communicate during rare outages |
+| Internal Tools | "Business critical" | 15-30 minutes | Employees can wait, work on other tasks |
+| Social Media | "Real-time required" | 1-2 minutes | Users accustomed to "refresh if error" |
+
+**The key insight**: If your business can tolerate 2-5 minutes of downtime, you don't need expensive active-active multi-region architecture. You just need:
+
+1. **Strong data durability** (so no data loss)
+2. **Infrastructure as Code** (so you can recreate services quickly)
+3. **Multi-AZ deployment** (so single AZ failures don't affect you)
+
+**Example: Practical HA strategy**
+
+Instead of this expensive approach:
+```
+❌ Active-Active Multi-Region (expensive, complex)
+├─ Full infrastructure in 3 regions
+├─ DynamoDB Global Tables
+├─ Cross-region data synchronization
+├─ Complex failover logic
+└─ Cost: $15,000/month for small app
+```
+
+Use this cost-effective approach:
+```
+✓ Multi-AZ + Fast Recovery (practical, sufficient)
+├─ Primary region: Multi-AZ deployment
+├─ Data: Continuous backups to S3 (cross-region)
+├─ Infrastructure: All defined in Terraform/CloudFormation
+├─ Recovery process:
+│   1. Detect region failure (1 minute)
+│   2. Terraform apply to new region (5 minutes)
+│   3. Restore database from backup (3 minutes)
+│   4. Update DNS to new region (2 minutes)
+│   Total: ~11 minutes RTO
+│   Data loss: <1 minute (RPO)
+└─ Cost: $2,000/month for same app
+
+Savings: $13,000/month (87% cost reduction)
+Trade-off: 11 minutes RTO vs near-zero RTO
+Question: Is 11-minute RTO acceptable for your business? (Usually: YES)
+```
+
+**When to choose expensive HA**:
+
+Use active-active multi-region ONLY if:
+- [ ] Your business genuinely loses $10,000+ per minute of downtime
+- [ ] You have regulatory requirements for continuous operation
+- [ ] You serve global users requiring <100ms latency everywhere
+- [ ] You've confirmed 5-minute RTO is genuinely unacceptable
+
+For everyone else: **Multi-AZ + Infrastructure as Code + Strong data backups** is sufficient and 87% cheaper.
+
 ### The Pillars of Cloud HA
 
 High availability in the cloud rests on four pillars:
