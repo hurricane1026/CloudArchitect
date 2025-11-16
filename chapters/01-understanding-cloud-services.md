@@ -62,12 +62,13 @@ When you recognize that the cloud is a **new computer**, you must redesign every
 
 The cloud offers **10+ different storage options**, each optimized for specific use cases. You don't ask "where do I store this?" - you ask "how will this data be accessed, how durable must it be, and how much am I willing to pay?"
 
-#### 2. **Rethink Compute**
+#### 2. **Rethink Compute: Elasticity as a Fundamental Capability**
 
 **Old thinking**: "How many servers do I need?"
 - Calculate peak capacity
 - Buy that many servers
 - Run them 24/7
+- 60-80% of capacity sits idle most of the time
 
 **Cloud thinking**: "What is the nature of my workload?"
 - Constant load → EC2 Reserved Instances (cheaper long-term commitment)
@@ -76,7 +77,53 @@ The cloud offers **10+ different storage options**, each optimized for specific 
 - Batch processing → Spot Instances (90% discount, interruptible)
 - Containerized apps → ECS/EKS (managed orchestration)
 
-The cloud offers **different compute paradigms** for different workload patterns. Your job is to match workload to the right compute model.
+**The cloud's killer feature: Elasticity**
+
+Elasticity is the ability to automatically grow and shrink resources to match actual demand in real-time. This isn't just convenient—it's the primary source of cloud cost savings.
+
+**Real-world elasticity example**:
+
+```
+Traditional Infrastructure (Fixed Capacity):
+Monday 3 AM:   2% utilization  → Still paying for 10 servers
+Monday 9 AM:   85% utilization → Using 8.5 of 10 servers
+Monday 2 PM:   40% utilization → Using 4 of 10 servers
+Black Friday:  150% demand     → CRASHED (insufficient capacity)
+
+Average utilization: 35%
+Cost: $10,000/month for 10 servers
+Wasted spend: $6,500/month (65% idle capacity)
+```
+
+```
+Cloud with Auto Scaling (Elastic Capacity):
+Monday 3 AM:   2% utilization  → 1 instance running ($100/month)
+Monday 9 AM:   85% utilization → Auto-scales to 9 instances
+Monday 2 PM:   40% utilization → Auto-scales down to 4 instances
+Black Friday:  150% demand     → Auto-scales to 15 instances
+
+Average cost: $3,500/month
+Savings: $6,500/month (65% reduction)
+Peak handling: Automatic, no crashes
+```
+
+**Auto Scaling configuration** (AWS):
+```yaml
+AutoScalingGroup:
+  MinSize: 1                    # Never go below 1 instance
+  MaxSize: 50                   # Can scale to 50 for traffic spikes
+  DesiredCapacity: 3            # Start with 3 instances
+  TargetCPUUtilization: 70%     # Add instances when CPU > 70%
+  ScaleOutCooldown: 60s         # Wait 60s between scale-outs
+  ScaleInCooldown: 300s         # Wait 5min before scaling down
+```
+
+**Why elasticity matters more than raw pricing**:
+- Cloud instances cost ~2x more per hour than owned hardware amortized
+- BUT you only run them when needed
+- Net result: 50-80% cost reduction through eliminating idle capacity
+
+The cloud offers **different compute paradigms** for different workload patterns. Your job is to match workload to the right compute model and leverage elasticity to avoid paying for idle resources.
 
 #### 3. **Rethink Networking**
 
@@ -1041,19 +1088,32 @@ Cloud services, exemplified by AWS, provide three fundamental advantages over tr
 - Maintain an audit trail of all changes
 - Self-documenting architecture
 
-### 3. Cost Optimization Through Time-Sharing
-- Cloud is fundamentally a **time-sharing model** - not cheaper per unit, but eliminates waste
+### 3. Cost Optimization Through Elasticity
+- Cloud is fundamentally a **time-sharing model** - not cheaper per unit, but eliminates waste through **elasticity**
+- **Elasticity** (automatic scaling) is the primary driver of cloud cost savings
 - For constant 24/7 workloads, owned hardware is often cheaper
-- Cloud's value comes from **elasticity** - scaling with demand
+- Cloud's value comes from **scaling with actual demand** - grow and shrink resources automatically
 - Auto-scaling avoids paying for idle resources (typically 60-80% waste in traditional infrastructure)
-- Serverless eliminates paying for idle time entirely
-- Savings come from **not provisioning for peak capacity that sits idle**
+- Serverless takes elasticity to the extreme - paying only for milliseconds of execution
+- Savings come from **not provisioning for peak capacity that sits idle 70% of the time**
 
 **Critical understanding**: Cloud providers convert capital investment into rental services. They must make a profit on top of their infrastructure costs. The economics work because most applications have **variable demand**, allowing time-sharing to eliminate waste. If you need constant resources 24/7, evaluate carefully - owned hardware may be more cost-effective.
 
 These three advantages—speed, automation, and efficient time-sharing—are why cloud computing has become the foundation for modern applications. In the next chapter, we'll explore the core architectural principles for building cloud-native applications that maximize these benefits.
 
 ## Key Takeaways
+
+**The Paradigm Shift:**
+- Cloud is a **new computer**, not a remote data center
+- Everything must be rethought: storage, compute, networking, reliability, deployment, security
+- The cloud computer is programmable, distributed, and elastic by design
+
+**Elasticity - The Cloud's Defining Capability:**
+- **Elasticity** is the ability to automatically scale resources up and down based on actual demand
+- This is the PRIMARY source of cloud cost savings (50-80% reduction by eliminating idle capacity)
+- Traditional infrastructure: 60-80% of resources sit idle, but you pay for 100%
+- Cloud with auto-scaling: Pay only for what you use, automatically handle traffic spikes
+- Without elasticity, cloud is often MORE expensive than owned hardware
 
 **Deployment & Automation:**
 - Cloud computing eliminates months of procurement and setup, enabling deployment in minutes
@@ -1064,9 +1124,9 @@ These three advantages—speed, automation, and efficient time-sharing—are why
 - Cloud is a **time-sharing business model** - providers invest capital and rent it out
 - For the same resources running 24/7, cloud is typically **more expensive** than owned hardware
 - Cloud's cost advantage comes from **avoiding idle resources**, not from being inherently cheaper
-- Auto-scaling eliminates 60-80% of typical infrastructure waste by matching capacity to demand
-- Serverless takes time-sharing to the extreme - paying only for milliseconds of actual execution
-- Cost savings are real (often 70-95%) but come from **elasticity**, not from cloud being magical ly cheaper per unit
+- Auto-scaling (elasticity) eliminates 60-80% of typical infrastructure waste by matching capacity to demand
+- Serverless takes elasticity to the extreme - paying only for milliseconds of actual execution
+- Cost savings are real (often 70-95%) but come from **elasticity**, not from cloud being magically cheaper per unit
 
 **When to use cloud:**
 - Variable workloads (traffic varies by time of day, seasonality)
