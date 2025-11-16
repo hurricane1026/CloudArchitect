@@ -5,10 +5,11 @@
 ## Part I: Cloud Fundamentals
 
 * [Chapter 1: Understanding Cloud Services](chapters/01-understanding-cloud-services.md)
-  * [1.1 What is Cloud Computing?](chapters/01-understanding-cloud-services.md#what-is-cloud-computing)
-  * [1.2 Deployment Efficiency](chapters/01-understanding-cloud-services.md#deployment-efficiency)
-  * [1.3 Infrastructure as Code](chapters/01-understanding-cloud-services.md#infrastructure-as-code)
-  * [1.4 Cost Optimization Through Time-Sharing](chapters/01-understanding-cloud-services.md#cost-optimization)
+  * [1.1 Cloud as a New Computer](chapters/01-understanding-cloud-services.md#cloud-as-a-new-computer-a-paradigm-shift)
+  * [1.2 What is Cloud Computing?](chapters/01-understanding-cloud-services.md#what-is-cloud-computing)
+  * [1.3 Deployment Efficiency](chapters/01-understanding-cloud-services.md#deployment-efficiency)
+  * [1.4 Infrastructure as Code](chapters/01-understanding-cloud-services.md#infrastructure-as-code)
+  * [1.5 Cost Optimization Through Time-Sharing](chapters/01-understanding-cloud-services.md#cost-optimization)
 
 * [Chapter 2: Distributed Systems vs Centralized Systems](chapters/03-distributed-vs-centralized.md)
   * [2.1 What is a Centralized System?](chapters/03-distributed-vs-centralized.md#what-is-a-centralized-system)
@@ -16,10 +17,11 @@
   * [2.3 Why Distributed Systems Win](chapters/03-distributed-vs-centralized.md#why-distributed-systems-win-in-the-cloud-era)
   * [2.4 CAP Theorem](chapters/03-distributed-vs-centralized.md#the-cap-theorem-understanding-trade-offs)
 
-* [Chapter 3: Core Cloud Architecture Principles](chapters/02-core-architecture-principles.md)
-  * [3.1 Scalability and Elasticity](chapters/02-core-architecture-principles.md#scalability-and-elasticity)
-  * [3.2 High Availability Design](chapters/02-core-architecture-principles.md#high-availability-design)
-  * [3.3 Fault Tolerance and Resilience](chapters/02-core-architecture-principles.md#fault-tolerance)
+* [Chapter 3: Cloud-Native Architecture Principles](chapters/02-core-architecture-principles.md)
+  * [3.1 The Cloud-Native Mindset](chapters/02-core-architecture-principles.md#the-cloud-native-mindset-applied)
+  * [3.2 Scalability and Elasticity](chapters/02-core-architecture-principles.md#scalability-and-elasticity)
+  * [3.3 High Availability Design](chapters/02-core-architecture-principles.md#high-availability-design)
+  * [3.4 Fault Tolerance and Resilience](chapters/02-core-architecture-principles.md#fault-tolerance)
 
 ## Part II: Building High-Availability Systems
 
